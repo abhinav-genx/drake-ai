@@ -162,6 +162,32 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
+## How to run
+
+### Development
+
+```bash
+npm install          # install dependencies
+npm run db:migrate   # apply database migrations
+npm run dev          # start the dev server at http://localhost:3000
+```
+
+The dev server hot-reloads on file changes.
+
+### Production
+
+```bash
+npm install
+npm run build        # prisma generate + next build
+npm run start        # serve the production build
+```
+
+> Make sure your `.env` is populated (see **Configure environment** above)
+> before running either mode — the app needs a `DATABASE_URL`, an
+> `OPENROUTER_API_KEY`, and Browserbase credentials to function.
+
+---
+
 ## Scripts
 
 | Script               | Description                              |
