@@ -1,0 +1,304 @@
+@import "tailwindcss";
+
+:root {
+  --background: #02040a;
+  --foreground: #cfeaff;
+
+  /* Sci-fi HUD palette */
+  --hud-cyan: #22d3ee;
+  --hud-cyan-soft: rgba(34, 211, 238, 0.55);
+  --hud-blue: #38bdf8;
+  --hud-teal: #2dd4bf;
+  --hud-amber: #fbbf24;
+  --hud-red: #f87171;
+  --hud-line: rgba(56, 189, 248, 0.18);
+  --hud-line-strong: rgba(56, 189, 248, 0.38);
+  --hud-glass: rgba(6, 18, 32, 0.55);
+  --hud-glass-strong: rgba(8, 22, 40, 0.8);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-hud-cyan: var(--hud-cyan);
+  --color-hud-blue: var(--hud-blue);
+  --color-hud-teal: var(--hud-teal);
+  --color-hud-amber: var(--hud-amber);
+  --color-hud-red: var(--hud-red);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  overflow: hidden;
+  /* Deep-space radial + subtle scan-grid backdrop for the whole app. */
+  background-image:
+    radial-gradient(circle at 50% -20%, rgba(34, 211, 238, 0.14), transparent 55%),
+    radial-gradient(circle at 12% 110%, rgba(56, 189, 248, 0.12), transparent 45%),
+    radial-gradient(circle at 88% 100%, rgba(45, 212, 191, 0.1), transparent 45%),
+    linear-gradient(to bottom, #02040a, #01030a);
+}
+
+/* Global faint HUD grid overlay + moving scanline, sits behind all content. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(var(--hud-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hud-line) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at 50% 40%, black, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, black, transparent 85%);
+  opacity: 0.5;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(34, 211, 238, 0.05) 48%,
+    rgba(34, 211, 238, 0.09) 50%,
+    rgba(34, 211, 238, 0.05) 52%,
+    transparent 100%
+  );
+  background-size: 100% 8px;
+  animation: hud-scan 8s linear infinite;
+  opacity: 0.35;
+}
+
+@keyframes hud-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* ---------- Scrollbars ---------- */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
+/* ---------- Reusable HUD utility classes ---------- */
+
+/* Frosted, translucent panel with a glowing edge. */
+.hud-panel {
+  background: var(--hud-glass);
+  border: 1px solid var(--hud-line-strong);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.05) inset,
+    0 0 30px rgba(34, 211, 238, 0.08),
+    0 8px 40px rgba(0, 0, 0, 0.55);
+  position: relative;
+}
+
+/* Corner ticks — the classic HUD frame accents. */
+.hud-corners::before,
+.hud-corners::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--hud-cyan);
+  border-style: solid;
+  opacity: 0.8;
+  pointer-events: none;
+}
+.hud-corners::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+.hud-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
+}
+
+.hud-glow-text {
+  text-shadow: 0 0 8px rgba(34, 211, 238, 0.7), 0 0 20px rgba(34, 211, 238, 0.35);
+}
+
+.hud-border-glow {
+  box-shadow:
+    0 0 0 1px var(--hud-cyan-soft),
+    0 0 18px rgba(34, 211, 238, 0.35),
+    0 0 40px rgba(34, 211, 238, 0.15);
+}
+
+/* Animated conic ring used behind the central command core. */
+@keyframes hud-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes hud-spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+.hud-ring {
+  animation: hud-spin 14s linear infinite;
+}
+.hud-ring-rev {
+  animation: hud-spin-rev 20s linear infinite;
+}
+
+/* Soft pulse for active/live indicators. */
+@keyframes hud-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 6px currentColor, 0 0 12px currentColor;
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 2px currentColor;
+  }
+}
+.hud-pulse {
+  animation: hud-pulse 1.6s ease-in-out infinite;
+}
+
+/* Flicker-in used when new HUD elements appear. */
+@keyframes hud-flicker {
+  0% {
+    opacity: 0;
+    filter: brightness(2);
+  }
+  10% {
+    opacity: 0.6;
+  }
+  20% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+.hud-flicker {
+  animation: hud-flicker 0.5s ease-out;
+}
+
+/* Traveling shimmer along the command bar underline. */
+@keyframes hud-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.hud-sweep {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hud-cyan),
+    var(--hud-blue),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: hud-sweep 3s linear infinite;
+}
+
+/* ---------- Animated neon border for browser windows ---------- */
+
+/* A rotating conic-gradient ring that sits just outside a panel to give it a
+   glowing, animated sci-fi neon frame. Apply to a wrapper; the inner content
+   sits on top via a solid background. */
+@property --neon-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes neon-rotate {
+  to {
+    --neon-angle: 360deg;
+  }
+}
+
+@keyframes neon-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px var(--hud-cyan)) drop-shadow(0 0 14px rgba(34, 211, 238, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px var(--hud-cyan)) drop-shadow(0 0 26px rgba(56, 189, 248, 0.65));
+  }
+}
+
+.neon-frame {
+  position: relative;
+  border-radius: 0.85rem;
+  padding: 2px; /* thickness of the neon border */
+  background: conic-gradient(
+    from var(--neon-angle),
+    var(--hud-cyan),
+    var(--hud-blue),
+    var(--hud-teal),
+    var(--hud-cyan),
+    var(--hud-blue),
+    var(--hud-cyan)
+  );
+  animation: neon-rotate 6s linear infinite, neon-breathe 3.2s ease-in-out infinite;
+}
+
+/* Dimmed neon for finished / idle windows. */
+.neon-frame-idle {
+  background: conic-gradient(
+    from var(--neon-angle),
+    rgba(45, 212, 191, 0.55),
+    rgba(56, 189, 248, 0.35),
+    rgba(45, 212, 191, 0.55)
+  );
+  animation: neon-rotate 12s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(45, 212, 191, 0.4));
+}
+
+/* Error state neon. */
+.neon-frame-error {
+  background: conic-gradient(
+    from var(--neon-angle),
+    var(--hud-red),
+    rgba(248, 113, 113, 0.4),
+    var(--hud-red)
+  );
+  animation: neon-rotate 8s linear infinite;
+  filter: drop-shadow(0 0 6px var(--hud-red)) drop-shadow(0 0 16px rgba(248, 113, 113, 0.5));
+}
