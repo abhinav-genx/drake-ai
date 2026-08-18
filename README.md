@@ -11,6 +11,8 @@ It is built on **Next.js 16 (App Router)** with a planning LLM served through
 [Stagehand](https://github.com/browserbase/stagehand) running on
 [Browserbase](https://browserbase.com).
 
+🔗 **Live demo:** [drake-ai-three.vercel.app](https://drake-ai-three.vercel.app/)
+
 ---
 
 ## How it works
